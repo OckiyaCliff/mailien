@@ -1,0 +1,36 @@
+{
+    "name": "@mailien/next",
+    "version": "0.0.1",
+    "description": "Next.js integration for Mailien — webhook handlers and API route helpers",
+    "license": "MIT",
+    "type": "module",
+    "main": "./dist/index.js",
+    "module": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "import": "./dist/index.js",
+            "types": "./dist/index.d.ts"
+        }
+    },
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "build": "tsup",
+        "dev": "tsup --watch",
+        "lint": "tsc --noEmit",
+        "clean": "rimraf dist"
+    },
+    "dependencies": {
+        "@mailien/core": "workspace:*"
+    },
+    "devDependencies": {
+        "tsup": "^8.0.0",
+        "rimraf": "^5.0.0",
+        "typescript": "^5.5.0"
+    },
+    "peerDependencies": {
+        "next": ">=14.0.0"
+    }
+}

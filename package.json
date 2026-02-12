@@ -1,0 +1,26 @@
+{
+  "name": "mailien",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Composable Email Infrastructure UI Kit + Fullstack Engine powered by Resend",
+  "license": "MIT",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
+    "clean": "turbo run clean"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.27.0",
+    "@types/node": "^25.2.3",
+    "prettier": "^3.2.0",
+    "turbo": "^2.3.0",
+    "typescript": "^5.5.0"
+  },
+  "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "node": ">=18"
+  }
+}

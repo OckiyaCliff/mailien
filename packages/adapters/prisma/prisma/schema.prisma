@@ -1,0 +1,99 @@
+// This is a Prisma schema to be used with @mailien/prisma-adapter.
+// Copy this into your project or extend your existing schema.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ───────────────────────────
+
+enum MessageDirection {
+  inbound
+  outbound
+}
+
+enum MessageStatus {
+  queued
+  sent
+  delivered
+  opened
+  bounced
+  complained
+  failed
+}
+
+// ─── Models ──────────────────────────
+
+model Mailbox {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  threads   Thread[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("mailboxes")
+}
+
+model Thread {
+  id            String    @id @default(cuid())
+  mailboxId     String
+  mailbox       Mailbox   @relation(fields: [mailboxId], references: [id], onDelete: Cascade)
+  subject       String
+  lastMessageAt DateTime  @default(now())
+  messageCount  Int       @default(0)
+  isRead        Boolean   @default(false)
+  messages      Message[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([mailboxId])
+  @@index([lastMessageAt])
+  @@map("threads")
+}
+
+model Message {
+  id             String           @id @default(cuid())
+  threadId       String
+  thread         Thread           @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  emailMessageId String           @unique
+  resendId       String?
+  from           String
+  to             String[]
+  cc             String[]         @default([])
+  bcc            String[]         @default([])
+  subject        String
+  bodyHtml       String?
+  bodyText       String?
+  direction      MessageDirection
+  status         MessageStatus    @default(queued)
+  inReplyTo      String?
+  references     String[]         @default([])
+  headers        Json?
+  sentAt         DateTime?
+  attachments    Attachment[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@index([threadId])
+  @@index([resendId])
+  @@map("messages")
+}
+
+model Attachment {
+  id          String  @id @default(cuid())
+  messageId   String
+  message     Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  filename    String
+  contentType String
+  size        Int
+  url         String?
+
+  @@index([messageId])
+  @@map("attachments")
+}
