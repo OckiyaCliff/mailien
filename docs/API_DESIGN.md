@@ -1,205 +1,98 @@
-# MAILIEN — API Design Document
+# 🛠️ MAILIEN — API Design Document
 
-**Version:** 1.0  
-**Date:** February 12, 2026
+> **"Developer-first primitives for building complex email workflows."**
+
+Mailien's API is divided into three distinct layers: **Core Engine**, **Next.js Integration**, and **Headless UI**.
 
 ---
 
 ## 1. Core Engine API (`@mailien/core`)
 
-### 1.1 Initialization
+The engine is framework-agnostic and responsible for the heavy lifting of ingestion, parsing, and threading.
+
+### Initialization
 
 ```ts
-import { createMailien } from "@mailien/core"
-import { prismaAdapter } from "@mailien/prisma-adapter"
+import { createMailien } from "@mailien/core";
 
 const mailien = createMailien({
-  apiKey: process.env.RESEND_API_KEY!,
+  apiKey: process.env.RESEND_API_KEY,
   adapter: prismaAdapter(prisma),
-  defaultFrom: "hello@yourdomain.com",
-  webhookSecret: process.env.RESEND_WEBHOOK_SECRET,
-})
+  debug: true,
+});
 ```
 
-#### `CreateMailienOptions`
+### Methods
 
-```ts
-interface CreateMailienOptions {
-  apiKey: string
-  adapter: MailienAdapter
-  defaultFrom?: string
-  webhookSecret?: string
-  logger?: MailienLogger
-}
-```
-
----
-
-### 1.2 Sending Email
-
-```ts
-const result = await mailien.send({
-  from: "support@company.com",
-  to: ["user@example.com"],
-  subject: "Welcome!",
-  html: "<p>Hello from Mailien</p>",
-  mailboxId: "mbx_support",
-})
-```
-
-#### `SendParams`
-
-```ts
-interface SendParams {
-  from?: string
-  to: string | string[]
-  subject: string
-  html?: string
-  text?: string
-  cc?: string[]
-  bcc?: string[]
-  replyTo?: string
-  mailboxId?: string
-  threadId?: string       // Reply to existing thread
-  attachments?: AttachmentInput[]
-}
-```
-
-#### `SendResult`
-
-```ts
-interface SendResult {
-  messageId: string       // Internal ID
-  emailMessageId: string  // RFC 2822 Message-ID
-  threadId: string
-}
-```
-
----
-
-### 1.3 Inbox & Threads
-
-```ts
-const { threads, total, hasMore } = await mailien.getInbox("mbx_support", {
-  limit: 20,
-  cursor: "thread_abc123",
-})
-
-const thread = await mailien.getThread("thread_abc123")
-const message = await mailien.getMessage("msg_xyz789")
-```
-
----
-
-### 1.4 Mailboxes
-
-```ts
-const mailbox = await mailien.createMailbox({
-  name: "Support",
-  email: "support@company.com",
-})
-const mailboxes = await mailien.getMailboxes()
-```
-
----
-
-### 1.5 Webhook Processing
-
-```ts
-const result = await mailien.processWebhook(payload, signature)
-```
+| Method | Returns | Description |
+| :--- | :--- | :--- |
+| `send(params)` | `Promise<Message>` | Send an email via Resend and link to a thread. |
+| `getInbox(mailboxId, options)` | `Promise<Thread[]>` | Fetch a paginated list of conversations. |
+| `getThread(threadId)` | `Promise<ThreadWithMessages>` | Fetch a full conversation history. |
+| `processWebhook(payload)` | `Promise<void>` | Handle incoming Resend events idempotently. |
 
 ---
 
 ## 2. Next.js Integration (`@mailien/next`)
 
-### 2.1 Webhook Handler
+Seamless integration with the App Router and Server Actions.
 
 ```ts
 // app/api/webhooks/email/route.ts
-import { mailienWebhookHandler } from "@mailien/next"
-import { mailien } from "@/lib/mailien"
+import { createWebhookHandler } from "@mailien/next";
 
-export const POST = mailienWebhookHandler(mailien, {
-  onEmailReceived: async (message) => { /* ... */ },
-  onStatusUpdate: async (messageId, status) => { /* ... */ },
-  onError: async (error) => { /* ... */ },
-})
+const handler = createWebhookHandler(mailien);
+
+export const POST = handler;
 ```
 
-### 2.2 API Route Helpers
-
-```ts
-import { createInboxRoute, createSendRoute, createThreadRoute } from "@mailien/next"
-
-export const GET = createInboxRoute(mailien)
-export const POST = createSendRoute(mailien)
-```
+### Key Utilities
+- `createWebhookHandler(engine)`: Automated Resend webhook endpoint.
+- `verifySignature(request)`: Standalone utility for manual payload verification.
 
 ---
 
-## 3. UI Components (`@mailien/ui`)
+## 3. Headless UI Primitives (`@mailien/ui`)
 
-### 3.1 Components
+Inspired by the **shadcn/ui** pattern. Components are logic-heavy but style-agnostic.
 
+```mermaid
+graph LR
+    Component[UI Component] --> Hook[Mailien Hook]
+    Hook --> Context[Mailien Provider]
+    Context --> Engine[@mailien/core]
+```
+
+### React Hooks
+
+| Hook | Description |
+| :--- | :--- |
+| `useInbox(mailboxId)` | Live-synced list of threads with pagination controls. |
+| `useThread(threadId)` | Real-time conversation view. |
+| `useComposer()` | Management of draft state, attachments, and sending. |
+
+### Component Examples
 ```tsx
-<Inbox mailboxId="mbx_support" onThreadSelect={(t) => router.push(`/inbox/${t.id}`)} />
-<ThreadView threadId={params.id} showComposer={true} />
-<Composer mailboxId="mbx_support" threadId={threadId} onSend={(r) => {}} />
-```
-
-### 3.2 React Hooks
-
-```ts
-const { threads, isLoading, loadMore, refresh } = useInbox({ mailboxId: "mbx_support" })
-const { thread, messages, isLoading, markAsRead } = useThread({ threadId: "thread_abc" })
-const { draft, setField, send, isSending, reset } = useComposer({ mailboxId: "mbx_support" })
+<Inbox mailboxId="mbx_123" onThreadClick={(id) => setID(id)} />
+<Composer onSend={(msg) => console.log(msg)} />
 ```
 
 ---
 
-## 4. Adapter Interface
+## 4. Adapter Interface (`MailienAdapter`)
+
+To build a custom adapter, you must implement the following skeletal structure:
 
 ```ts
 interface MailienAdapter {
-  createThread(data: CreateThreadData): Promise<Thread>
-  getThread(threadId: string): Promise<ThreadWithMessages | null>
-  getThreads(mailboxId: string, options?: PaginationOptions): Promise<PaginatedResult<ThreadPreview>>
-  createMessage(data: CreateMessageData): Promise<Message>
-  getMessage(messageId: string): Promise<Message | null>
-  getMessageByEmailId(emailMessageId: string): Promise<Message | null>
-  updateMessageStatus(messageId: string, status: MessageStatus): Promise<void>
-  createMailbox(data: CreateMailboxData): Promise<Mailbox>
-  getMailbox(mailboxId: string): Promise<Mailbox | null>
-  getMailboxes(): Promise<Mailbox[]>
-  createAttachment(data: CreateAttachmentData): Promise<Attachment>
+  createMessage(data: MessageInput): Promise<Message>;
+  findThreadByReference(references: string[]): Promise<Thread | null>;
+  upsertMailbox(data: MailboxInput): Promise<Mailbox>;
+  // ...
 }
 ```
 
 ---
 
-## 5. Error Handling
-
-```ts
-class MailienError extends Error { code: string; statusCode: number }
-class MailienAuthError extends MailienError {}
-class MailienNotFoundError extends MailienError {}
-class MailienValidationError extends MailienError {}
-class MailienWebhookError extends MailienError {}
-class MailienAdapterError extends MailienError {}
-```
-
----
-
-## 6. Event Hooks
-
-```ts
-const mailien = createMailien({
-  hooks: {
-    beforeSend: async (params) => params,
-    afterSend: async (result) => {},
-    onReceive: async (message) => {},
-    onStatusChange: async (messageId, oldStatus, newStatus) => {},
-  },
-})
-```
+> [!TIP]
+> All Mailien APIs are strictly typed. We recommend using `TypeScript` 5.0+ for the best developer experience.

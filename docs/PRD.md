@@ -1,291 +1,100 @@
-# MAILIEN — Product Requirements Document (PRD)
+# 📄 MAILIEN — Product Requirements Document (PRD)
 
-**Version:** 1.0  
-**Date:** February 12, 2026  
-**Status:** Draft  
-**License:** MIT (Open Source)
+> **"Build production-ready email systems in minutes, powered by Resend."**
 
----
-
-## 1. Product Overview
-
-### Product Name
-
-**Mailien**
-
-### Tagline
-
-> Build production-ready email systems in minutes, powered by Resend.
-
-### Vision
-
-To become the open infrastructure layer for building custom email dashboards, team inboxes, and communication platforms — abstracting the complexity of email systems into composable, developer-first primitives.
-
-### Mission
-
-Mailien enables developers to transform Resend into a fully functional email system — including inboxes, threading, and UI — with minimal setup and maximum flexibility.
-
-### What Mailien Is
-
-| ✅ Mailien IS | ❌ Mailien IS NOT |
-|---|---|
-| An email infrastructure toolkit | An email provider |
-| A headless email engine + UI kit | A Gmail replacement |
-| Open-source developer tooling | A marketing email tool |
-| Composable primitives for building email UIs | A monolithic SaaS product |
+| Metadata | Details |
+| :--- | :--- |
+| **Version** | 1.1 |
+| **Date** | February 12, 2026 |
+| **Status** | Strategic Roadmap |
+| **License** | MIT |
 
 ---
 
-## 2. Problem Statement
+## 1. Executive Summary
 
-While Resend provides reliable email sending and receiving APIs, building a **complete email system** still requires significant engineering effort.
+Mailien is the **open infrastructure layer** for building custom email dashboards. While providers like Resend have revolutionized *sending* and *receiving* emails via API, developers are still left with the monumental task of building the **system**—threading, analytics, storage, and UI.
 
-Developers must manually implement:
-
-- Webhook handling and verification
-- Inbound email parsing
-- Threading via `Message-ID`, `In-Reply-To`, `References`
-- Database modeling for messages and threads
-- Email status tracking (sent → delivered → opened → bounced)
-- Attachment handling
-- UI development (inbox, compose, thread view)
-- Pagination and performance tuning
-
-**This leads to:**
-
-- Repeated engineering effort across projects
-- Inconsistent threading logic
-- Infrastructure complexity
-- Increased time to ship
-
-> There is no open-source infrastructure layer that transforms Resend into a Gmail-like system out of the box. **Mailien solves this.**
+Mailien bridges this gap by providing a headless engine and a modular UI kit that transforms Resend into a full-scale email product out of the box.
 
 ---
 
-## 3. Target Audience
+## 2. Core Pillars
 
-### Primary
+> [!TIP]
+> Our goal is to reduce "Time to First Inbox" (TTFI) to under 15 minutes.
 
-| Audience | Use Case |
-|---|---|
-| SaaS founders | Embed email into their product |
-| CRM builders | Customer communication layer |
-| Support desk builders | Ticket/email inbox systems |
-| Indie hackers | Quick email-powered MVPs |
-| Agencies | White-label email dashboards |
-| Internal tool teams | Internal communication systems |
-
-### Secondary
-
-- Enterprises building internal inbox systems
-- Dev-tool creators integrating email dashboards
+1.  **Productized API** — We don't just wrap Resend; we turn its events into a structured product data model.
+2.  **Deterministic Threading** — Native, reliable conversation grouping that "just works."
+3.  **Modern DX** — Headless logic with shadcn-inspired component delivery.
+4.  **Extensibility** — Plugin architecture for things like Stellar-powered blockchain payments.
 
 ---
 
-## 4. Product Model
+## 3. Market Opportunity
 
-Mailien follows **Option 3: Headless Email Engine + UI Kit** — the highest-value model.
+The "Build vs. Buy" struggle for email dashoards is real.
+- **Buy**: Expensive, rigid, and often bloated SaaS (e.g., Front, Intercom).
+- **Build**: Months of engineering effort spent on redundant infrastructure (webhooks, threading logic, storage).
 
-```
-┌─────────────────────────────────────────┐
-│           Developer Application          │
-│                                         │
-│  ┌─────────────┐  ┌──────────────────┐  │
-│  │  @mailien/ui │  │  Custom App Code │  │
-│  └──────┬──────┘  └────────┬─────────┘  │
-│         │                  │            │
-│  ┌──────┴──────────────────┴─────────┐  │
-│  │         @mailien/core             │  │
-│  │   (Headless Email Engine)         │  │
-│  └──────┬───────────────┬────────────┘  │
-│         │               │               │
-│  ┌──────┴──────┐ ┌──────┴────────────┐  │
-│  │ DB Adapter  │ │  @mailien/next    │  │
-│  │ (Prisma /   │ │  (Webhook routes) │  │
-│  │  Supabase)  │ │                   │  │
-│  └─────────────┘ └──────┬────────────┘  │
-│                         │               │
-└─────────────────────────┼───────────────┘
-                          │
-                   ┌──────┴──────┐
-                   │  Resend API  │
-                   └─────────────┘
-```
-
-Developers can use:
-
-- **Backend only** — headless engine for custom UIs
-- **UI only** — pre-built components with their own backend
-- **Both** — full-stack email system out of the box
+**Mailien is the middle path: Pre-built infrastructure with total developer control.**
 
 ---
 
-## 5. V1 Feature Scope
+## 4. Product Definition
 
-> **Principle:** Be ruthless. Ship a sharp MVP. No feature creep.
+### ✅ V1 Scope (The Core Engine)
 
-### ✅ V1 Includes
+We focus on the **atomic units** of dynamic email:
 
 | Feature | Description |
-|---|---|
-| **Send email** | Via Resend API through Mailien engine |
-| **Receive email** | Via webhook handler |
-| **Thread engine** | Automatic threading via email headers |
-| **Message persistence** | Store messages through DB adapter |
-| **Inbox UI** | Composable inbox component |
-| **Compose UI** | Email composition component |
-| **Thread view UI** | Conversation thread display |
-| **Webhook handler** | Framework-ready webhook route |
-| **Status tracking** | sent → delivered → opened → bounced |
+| :--- | :--- |
+| **Unified Sending** | A clean API to send via Resend with auto-threading. |
+| **Ingestion Engine** | Framework-ready webhook handlers for incoming mail. |
+| **Conversation Logic** | Grouping messages by `Message-ID`, `In-Reply-To`, and `References`. |
+| **Persistence** | Official adapters for Prisma (Postgres/MySQL) and Supabase. |
+| **UI Primitives** | Inbox, Thread View, Composer, and Sidebar components. |
 
-### ❌ V1 Does NOT Include
+### ❌ Excluded from V1 (Expansion Targets)
 
-- AI features
-- Analytics dashboard
-- Spam filters
-- Labels/tags
-- Team/multi-user support
-- Full-text search
-- Bulk actions
-- Fintech/payments (developed as separate experimental plugin)
+- Full-text search (Planned for V2)
+- AI-assisted replies (Planned for V5)
+- Native team management (Planned for V3)
+- Multi-tenancy (Enterprise layer)
 
 ---
 
-## 6. V2+ Expansion Targets
+## 5. Strategic Roadmap
 
-These are **planned expansions**, not "nice-to-haves."
-
-### V2 — Advanced Inbox
-- Full-text search
-- Labels & tagging
-- Filters (unread, starred, etc.)
-- Bulk actions
-
-### V3 — Multi-Mailbox & Teams
-- Multiple mailboxes per project
-- Role-based permissions
-- Organization support
-- Shared inboxes
-
-### V4 — Analytics
-- Open rates & reply rates
-- Bounce tracking
-- Response time metrics
-- Dashboard widgets
-
-### V5 — AI Layer
-- Smart categorization
-- Suggested replies
-- Spam scoring
-- Auto-routing
-
-### Experimental — Fintech Plugin (`@mailien/stellar`)
-- Payment-aware emails (money as attachment)
-- Stellar blockchain settlement
-- Non-custodial wallet mapping (email → Stellar address)
-- Payment request/send flows
-- Transaction UI components
-- See [Fintech Plugin Spec](FINTECH_PLUGIN.md) for details
-
-### Future — SaaS Layer (Optional)
-- Hosted Mailien
-- Managed threading engine
-- Enterprise add-ons
-
----
-
-## 7. Developer Setup Flow (Target DX)
-
-```
-1. npm install @mailien/core @mailien/next @mailien/prisma-adapter
-2. Add RESEND_API_KEY to .env
-3. Add webhook route (one-liner)
-4. Run DB migration (npx prisma migrate)
-5. Render <Inbox /> component
+```mermaid
+timeline
+    title Mailien Evolution 🚀
+    Phase 1 : Setup Monorepo : Build Demo App : Concept Proof
+    Phase 2 : Headless Engine (@mailien/core) : Prisma Adapter
+    Phase 3 : Next.js Integration : UI Kit (@mailien/ui)
+    Phase 4 : Supabase Support : Documentation : Polish
+    Phase 5 : Open Source Launch : Global Distribution
+    Phase 6 : Fintech Plugin (@mailien/stellar) : AI Integrations
 ```
 
-> **Goal:** Working inbox in under 15 minutes.
+---
+
+## 6. Success Metrics
+
+| Goal | Metric |
+| :--- | :--- |
+| **Adoption** | 1,000+ GitHub Stars within 6 months. |
+| **Usage** | 100+ production apps utilizing the engine. |
+| **Community** | 10+ active contributors to adapters and UI themes. |
+| **Efficiency** | Setup time < 15 minutes for a standard Next.js app. |
 
 ---
 
-## 8. Security Requirements
+## 7. Positioning Statement
 
-| Requirement | Details |
-|---|---|
-| Webhook verification | Verify Resend webhook signatures |
-| API key protection | Never expose keys client-side |
-| Content sanitization | Sanitize all inbound HTML content |
-| Attachment validation | Validate file types and sizes |
-| Idempotency | Protect against duplicate webhook events |
+> **"Mailien is not an email provider. It is the operating system for your email product."**
 
 ---
 
-## 9. Performance Requirements
-
-| Metric | Target |
-|---|---|
-| Webhook response time | < 500ms |
-| Thread pagination | Cursor-based, efficient |
-| Message loading | Lazy-loaded, virtualized |
-| DB queries | Properly indexed |
-| UI updates | Optimistic rendering |
-
----
-
-## 10. Open Source Strategy
-
-### License
-MIT
-
-### Repository Must Include
-- Clear README with quick-start guide
-- Architecture diagrams
-- Working example app
-- Demo screenshots/recordings
-- Contributing guide
-- Public roadmap
-
-### Community Strategy
-- Encourage community adapters (Drizzle, MongoDB, etc.)
-- Encourage UI themes and variants
-- Encourage framework integrations (Remix, SvelteKit, etc.)
-
-### Future Monetization (Open Core Model)
-| Free (OSS) | Paid (Enterprise) |
-|---|---|
-| Core engine | Advanced analytics |
-| Basic UI components | Multi-tenant org management |
-| Prisma/Supabase adapters | Enterprise RBAC |
-| Webhook handler | AI automation |
-| Threading engine | Hosted dashboard |
-| Stellar plugin (experimental) | Managed payment processing |
-
----
-
-## 11. Success Metrics
-
-| Metric | Target |
-|---|---|
-| GitHub stars | 1,000+ |
-| Projects using Mailien | 100+ |
-| Contributors | 10+ |
-| Community adapters | 3+ |
-| Avg setup time | < 15 minutes |
-
----
-
-## 12. Long-Term Vision
-
-Mailien evolves into a **composable communication + value infrastructure layer.**
-
-```
-Email (V1) → Payments (Plugin) → SMS → Push → In-app Messaging → AI Automation
-```
-
-Email remains the foundation. Payments (via Stellar) extend emails into value-aware communication. Each capability is additive and opt-in.
-
----
-
-## 13. Positioning Statement
-
-> **Mailien** is the infrastructure layer that turns Resend into a full email system. The fastest way to build a production-ready email dashboard powered by Resend.
+> [!IMPORTANT]
+> This document is a living artifact. Feedbacks and pivots are encouraged as we move from planning to execution.
