@@ -1,0 +1,39 @@
+{
+    "name": "@mailien/supabase-adapter",
+    "version": "0.0.1",
+    "description": "Supabase adapter for the Mailien email engine",
+    "license": "MIT",
+    "type": "module",
+    "main": "./dist/index.js",
+    "module": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "import": "./dist/index.js",
+            "types": "./dist/index.d.ts"
+        },
+        "./schema": "./sql/schema.sql"
+    },
+    "files": [
+        "dist",
+        "sql"
+    ],
+    "scripts": {
+        "build": "tsup",
+        "dev": "tsup --watch",
+        "lint": "tsc --noEmit",
+        "clean": "rimraf dist"
+    },
+    "dependencies": {
+        "@mailien/core": "workspace:*",
+        "@supabase/supabase-js": "^2.49.0"
+    },
+    "devDependencies": {
+        "tsup": "^8.0.0",
+        "rimraf": "^5.0.0",
+        "typescript": "^5.5.0"
+    },
+    "peerDependencies": {
+        "@supabase/supabase-js": ">=2.0.0"
+    }
+}
