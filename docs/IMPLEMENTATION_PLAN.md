@@ -30,22 +30,30 @@ gantt
 
 ## 🚀 Phase Breakdown
 
-### Phase 1: Foundation (Weeks 1–3)
+### Phase 1: Foundation (Weeks 1–3) ✅
 - **Goal**: Prove the core threading and ingestion logic in a monolithic demo app.
 - **Success Criteria**:
-  - [ ] Sent and received emails correctly threaded.
-  - [ ] Working Next.js dashboard with Resend webhooks.
-  - [ ] Schema migrations finalized in Prisma.
+  - [x] Sent and received emails correctly threaded.
+  - [x] Working Next.js dashboard with Resend webhooks.
+  - [x] Schema migrations finalized in Prisma.
 
-### Phase 2: Core Engine Isolation (Weeks 4–5)
+### Phase 2: Core Engine Isolation (Weeks 4–5) ✅
 - **Goal**: Extract business logic into a headless package.
 - **Deliverables**: `@mailien/core` and `@mailien/prisma-adapter`.
 - **Constraint**: Zero framework dependencies in the core engine.
 
-### Phase 3: Framework & UI (Weeks 6–8)
+### Phase 3: Framework & UI (Weeks 6–8) ✅
 - **Goal**: Package components for developer consumption.
 - **Deliverables**: `@mailien/next` (Webhook Handler) and `@mailien/ui`.
 - **Pattern**: shadcn-style component injection.
+
+### Phase 4: Adapters & Documentation (Weeks 9–10) ✅
+- **Goal**: Expand database support and polish docs.
+- **Deliverables**: `@mailien/supabase-adapter`, API Reference, Getting Started guide.
+
+### Phase 5: Open Source Launch (Week 11) ✅
+- **Goal**: Prepare for public distribution.
+- **Deliverables**: LICENSE, CONTRIBUTING.md, issue templates, `@mailien/stellar` plugin.
 
 ---
 
