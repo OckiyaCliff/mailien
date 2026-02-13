@@ -1,8 +1,15 @@
-// ──────────────────────────────────────────────
-// @mailien/ui — Public API
-// ──────────────────────────────────────────────
+'use client'
 
 // Hooks
-export { useInbox } from './hooks/use-inbox.js'
-export { useThread } from './hooks/use-thread.js'
-export { useComposer } from './hooks/use-composer.js'
+export * from './hooks/use-inbox'
+export * from './hooks/use-thread'
+export * from './hooks/use-composer'
+
+// Components
+export * from './components/thread-item'
+export * from './components/inbox-list'
+export * from './components/thread-view'
+export * from './components/composer'
+
+// Lib
+export * from './lib/utils'

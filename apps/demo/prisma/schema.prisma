@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Mailbox {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  threads   Thread[]
+
+  @@map("mailboxes")
+}
+
+model Thread {
+  id            String   @id @default(cuid())
+  mailboxId     String
+  mailbox       Mailbox  @relation(fields: [mailboxId], references: [id], onDelete: Cascade)
+  subject       String
+  lastMessageAt DateTime @default(now())
+  messageCount  Int      @default(0)
+  isRead        Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  messages      Message[]
+
+  @@index([mailboxId])
+  @@map("threads")
+}
+
+model Message {
+  id             String   @id @default(cuid())
+  threadId       String
+  thread         Thread   @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  emailMessageId String   @unique
+  resendId       String?  @unique
+  from           String
+  to             String   // Stored as semicolon separated string for SQLite
+  cc             String?
+  subject        String?
+  bodyHtml       String?
+  bodyText       String?
+  direction      String   // inbound | outbound
+  status         String   // queued | sent | ...
+  inReplyTo      String?
+  references     String?  // Stored as semicolon separated string
+  headers        String?  // JSON string
+  sentAt         DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([threadId])
+  @@map("messages")
+}

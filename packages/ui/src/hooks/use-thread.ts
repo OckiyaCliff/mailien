@@ -1,55 +1,38 @@
-// ──────────────────────────────────────────────
-// @mailien/ui — Hooks: useThread
-// ──────────────────────────────────────────────
+'use client'
 
 import { useState, useCallback, useEffect } from 'react'
-import type { ThreadWithMessages, MailienEngine } from '@mailien/core'
+import type { ThreadWithMessages } from '@mailien/core'
 
-interface UseThreadOptions {
-    engine: MailienEngine
-    threadId: string | null
-}
-
-interface UseThreadReturn {
-    thread: ThreadWithMessages | null
-    isLoading: boolean
-    error: Error | null
-    refresh: () => Promise<void>
-}
-
-export function useThread(options: UseThreadOptions): UseThreadReturn {
-    const { engine, threadId } = options
-
+/**
+ * Hook to manage a single thread view.
+ */
+export function useThread(threadId: string | null, fetchThread: (id: string) => Promise<ThreadWithMessages | null>) {
     const [thread, setThread] = useState<ThreadWithMessages | null>(null)
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState<Error | null>(null)
 
-    const fetchThread = useCallback(async () => {
-        if (!threadId) {
-            setThread(null)
-            return
-        }
-
+    const refresh = useCallback(async () => {
+        if (!threadId) return
+        setIsLoading(true)
+        setError(null)
         try {
-            setIsLoading(true)
-            setError(null)
-
-            const result = await engine.getThread(threadId)
-            setThread(result)
+            const data = await fetchThread(threadId)
+            setThread(data)
         } catch (err) {
             setError(err instanceof Error ? err : new Error('Failed to fetch thread'))
         } finally {
             setIsLoading(false)
         }
-    }, [engine, threadId])
-
-    const refresh = useCallback(async () => {
-        await fetchThread()
-    }, [fetchThread])
+    }, [threadId, fetchThread])
 
     useEffect(() => {
-        fetchThread()
-    }, [fetchThread])
+        refresh()
+    }, [refresh])
 
-    return { thread, isLoading, error, refresh }
+    return {
+        thread,
+        isLoading,
+        error,
+        refresh
+    }
 }
